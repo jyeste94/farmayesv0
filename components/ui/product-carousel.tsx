@@ -83,6 +83,65 @@ export function ProductCarousel({
   const carouselRef = useRef<HTMLDivElement>(null)
   const intervalRef = useRef<NodeJS.Timeout>()
 
+  const getTypeIcon = () => {
+    switch (type) {
+      case "trending":
+        return <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
+      case "recently-viewed":
+        return <Clock className="w-4 h-4 md:w-5 md:h-5" />
+      case "bestselling":
+        return <Zap className="w-4 h-4 md:w-5 md:h-5" />
+      default:
+        return <Star className="w-4 h-4 md:w-5 md:h-5" />
+    }
+  }
+
+  const getTypeColor = () => {
+    switch (type) {
+      case "trending":
+        return "text-red-500"
+      case "recently-viewed":
+        return "text-blue-500"
+      case "bestselling":
+        return "text-yellow-500"
+      case "recommended":
+        return "text-green-500"
+      default:
+        return "text-primary-blue"
+    }
+  }
+
+  // Handle empty or insufficient data
+  if (!products || products.length === 0) {
+    return (
+      <section className={cn("py-8 md:py-12", className)}>
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 md:mb-8 gap-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className={cn("flex items-center justify-center", getTypeColor())}>{getTypeIcon()}</div>
+                <h2 className="text-xl md:text-2xl lg:text-3xl font-bold font-montserrat text-charcoal">{title}</h2>
+              </div>
+              {subtitle && <p className="text-gray-600 font-inter text-sm md:text-base">{subtitle}</p>}
+            </div>
+          </div>
+
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              <ShoppingCart className="w-16 h-16 mx-auto mb-4" />
+              <p className="text-lg font-semibold">No hay productos disponibles</p>
+              <p className="text-sm">Los productos se cargarán desde PrestaShop</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  const shouldShowNavigation = showNavigation && products.length > itemsToShow
+  const shouldShowDots = showDots && products.length > itemsToShow
+  const shouldAutoPlay = autoPlay && products.length > itemsToShow
+
   // Responsive items calculation
   useEffect(() => {
     const updateItemsToShow = () => {
@@ -161,36 +220,6 @@ export function ProductCarousel({
   const goToSlide = (index: number) => {
     setCurrentIndex(Math.min(index, maxIndex))
   }
-
-  const getTypeIcon = () => {
-    switch (type) {
-      case "trending":
-        return <TrendingUp className="w-4 h-4 md:w-5 md:h-5" />
-      case "recently-viewed":
-        return <Clock className="w-4 h-4 md:w-5 md:h-5" />
-      case "bestselling":
-        return <Zap className="w-4 h-4 md:w-5 md:h-5" />
-      default:
-        return <Star className="w-4 h-4 md:w-5 md:h-5" />
-    }
-  }
-
-  const getTypeColor = () => {
-    switch (type) {
-      case "trending":
-        return "text-red-500"
-      case "recently-viewed":
-        return "text-blue-500"
-      case "bestselling":
-        return "text-yellow-500"
-      case "recommended":
-        return "text-green-500"
-      default:
-        return "text-primary-blue"
-    }
-  }
-
-  if (products.length === 0) return null
 
   return (
     <section
@@ -292,7 +321,7 @@ export function ProductCarousel({
           </div>
 
           {/* Navigation Arrows */}
-          {showNavigation && products.length > itemsToShow && (
+          {shouldShowNavigation && (
             <>
               <Button
                 variant="ghost"
@@ -324,7 +353,7 @@ export function ProductCarousel({
         </div>
 
         {/* Dots Indicator */}
-        {showDots && products.length > itemsToShow && (
+        {shouldShowDots && (
           <div className="flex justify-center mt-6 md:mt-8">
             <div className="flex space-x-2">
               {Array.from({ length: Math.ceil(products.length / itemsToShow) }).map((_, index) => (

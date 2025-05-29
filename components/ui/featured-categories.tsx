@@ -2,181 +2,254 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
-import { ChevronRight, ArrowRight, TrendingUp, Users, Star } from "lucide-react"
+import { ArrowRight, Sparkles, TrendingUp, Package, CheckCircle, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { cn } from "@/lib/utils"
 
-interface CategoryData {
+interface FeaturedCategory {
   id: string
   name: string
   description: string
   href: string
   image: string
-  icon?: React.ReactNode
-  productCount: number
+  backgroundImage?: string
+  featured?: boolean
   trending?: boolean
   popular?: boolean
-  featured?: boolean
-  color: {
+  productCount: number
+  highlightColor?: string
+  textColor?: "light" | "dark"
+  specialOffer?: {
+    text: string
+    discount: string
+  }
+  color?: {
     primary: string
     secondary: string
     accent: string
   }
   stats?: {
-    avgRating?: number
-    totalReviews?: number
-    newProducts?: number
+    avgRating: number
+    totalReviews: number
+    newProducts: number
   }
+  icon?: React.ReactNode
 }
 
 interface FeaturedCategoriesProps {
-  categories: CategoryData[]
+  categories: FeaturedCategory[]
   title?: string
   subtitle?: string
-  layout?: "grid" | "carousel" | "masonry"
+  layout?: "grid" | "carousel"
   showStats?: boolean
   showViewAll?: boolean
-  maxItems?: number
+  isLoading?: boolean
+  error?: string | null
+  onRetry?: () => void
   className?: string
 }
 
 export function FeaturedCategories({
   categories,
-  title = "Shop by Category",
-  subtitle = "Discover our comprehensive range of health and wellness products",
+  title = "Explore Our Categories",
+  subtitle = "Find exactly what you need for your health and wellness journey",
   layout = "grid",
-  showStats = true,
+  showStats = false,
   showViewAll = true,
-  maxItems,
+  isLoading = false,
+  error = null,
+  onRetry,
   className = "",
 }: FeaturedCategoriesProps) {
-  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null)
-  const [isVisible, setIsVisible] = useState(false)
+  const [activeCategory, setActiveCategory] = useState<string | null>(null)
 
-  const displayCategories = maxItems ? categories.slice(0, maxItems) : categories
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.1 },
+  // Handle loading state
+  if (isLoading) {
+    return (
+      <section className={cn("py-8 md:py-16", className)}>
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold font-montserrat text-charcoal mb-3 md:mb-4">
+              {title}
+            </h2>
+            <p className="text-gray-600 font-inter text-sm md:text-base lg:text-lg max-w-2xl mx-auto">{subtitle}</p>
+          </div>
+          <div className="flex items-center justify-center py-12">
+            <LoadingSpinner size="lg" />
+            <span className="ml-3 text-lg">Cargando categorías...</span>
+          </div>
+        </div>
+      </section>
     )
+  }
 
-    const element = document.getElementById("featured-categories")
-    if (element) observer.observe(element)
+  // Handle error state
+  if (error) {
+    return (
+      <section className={cn("py-8 md:py-16", className)}>
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold font-montserrat text-charcoal mb-3 md:mb-4">
+              {title}
+            </h2>
+            <p className="text-gray-600 font-inter text-sm md:text-base lg:text-lg max-w-2xl mx-auto">{subtitle}</p>
+          </div>
+          <div className="text-center py-12">
+            <div className="text-red-600 mb-4">
+              <Package className="w-16 h-16 mx-auto mb-4" />
+              <p className="text-lg font-semibold">Error al cargar categorías</p>
+              <p className="text-sm">{error}</p>
+            </div>
+            {onRetry && (
+              <Button onClick={onRetry} variant="outline">
+                Reintentar
+              </Button>
+            )}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
-    return () => observer.disconnect()
-  }, [])
+  // Handle empty state
+  if (!categories || categories.length === 0) {
+    return (
+      <section className={cn("py-8 md:py-16", className)}>
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold font-montserrat text-charcoal mb-3 md:mb-4">
+              {title}
+            </h2>
+            <p className="text-gray-600 font-inter text-sm md:text-base lg:text-lg max-w-2xl mx-auto">{subtitle}</p>
+          </div>
+          <div className="text-center py-12">
+            <Package className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+            <h3 className="text-lg font-semibold text-gray-600 mb-2">No hay categorías disponibles</h3>
+            <p className="text-gray-500 mb-4">Las categorías se cargarán desde PrestaShop</p>
+            {onRetry && (
+              <Button onClick={onRetry} variant="outline">
+                Recargar Categorías
+              </Button>
+            )}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
-  const getLayoutClasses = () => {
-    switch (layout) {
-      case "carousel":
-        return "flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
-      case "masonry":
-        return "columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 md:gap-6"
-      default:
-        return "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-6"
+  // Adapt layout based on number of categories
+  const adaptiveLayout = categories.length <= 2 ? "simple" : categories.length <= 4 ? "compact" : "full"
+
+  const getStatusInfo = () => {
+    if (isLoading) {
+      return {
+        icon: <Clock className="w-4 h-4" />,
+        status: "Cargando...",
+        color: "bg-yellow-500",
+        textColor: "text-yellow-700",
+      }
+    }
+
+    if (error) {
+      return {
+        icon: <Package className="w-4 h-4" />,
+        status: "Error",
+        color: "bg-red-500",
+        textColor: "text-red-700",
+      }
+    }
+
+    return {
+      icon: <CheckCircle className="w-4 h-4" />,
+      status: "Conectado",
+      color: "bg-green-500",
+      textColor: "text-green-700",
     }
   }
 
   return (
-    <section id="featured-categories" className={cn("py-8 md:py-16", className)}>
+    <section className={cn("py-8 md:py-16", className)}>
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 md:mb-12 gap-4">
-          <div className="space-y-2 md:space-y-3">
-            <h2
-              className={cn(
-                "text-2xl md:text-3xl lg:text-4xl font-bold font-montserrat text-charcoal transition-all duration-700",
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-              )}
-            >
-              {title}
-            </h2>
-            {subtitle && (
-              <p
-                className={cn(
-                  "text-gray-600 font-inter text-sm md:text-base lg:text-lg max-w-2xl transition-all duration-700 delay-100",
-                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-                )}
-              >
-                {subtitle}
-              </p>
-            )}
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold font-montserrat text-charcoal mb-3 md:mb-4">
+            {title}
+          </h2>
+          <p className="text-gray-600 font-inter text-sm md:text-base lg:text-lg max-w-2xl mx-auto">{subtitle}</p>
+        </div>
+
+        {/* Adaptive Grid Layout */}
+        {adaptiveLayout === "simple" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {categories.map((category) => (
+              <CategoryCard
+                key={category.id}
+                category={category}
+                size="large"
+                showStats={showStats}
+                isActive={activeCategory === category.id}
+                onHover={setActiveCategory}
+              />
+            ))}
           </div>
+        )}
 
-          {showViewAll && (
-            <Button
-              asChild
-              variant="outline"
-              className={cn(
-                "group transition-all duration-700 delay-200",
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
-              )}
-            >
-              <Link href="/categories">
-                View All Categories
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </Button>
-          )}
-        </div>
+        {adaptiveLayout === "compact" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {categories.map((category) => (
+              <CategoryCard
+                key={category.id}
+                category={category}
+                size="medium"
+                showStats={showStats}
+                isActive={activeCategory === category.id}
+                onHover={setActiveCategory}
+              />
+            ))}
+          </div>
+        )}
 
-        {/* Categories Grid/Carousel */}
-        <div className={getLayoutClasses()}>
-          {displayCategories.map((category, index) => (
-            <CategoryCard
-              key={category.id}
-              category={category}
-              index={index}
-              layout={layout}
-              showStats={showStats}
-              isVisible={isVisible}
-              isHovered={hoveredCategory === category.id}
-              onHover={setHoveredCategory}
-            />
-          ))}
-        </div>
+        {adaptiveLayout === "full" && (
+          <>
+            {/* Featured Categories - Large Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {categories.slice(0, 3).map((category) => (
+                <CategoryCard
+                  key={category.id}
+                  category={category}
+                  size="large"
+                  showStats={showStats}
+                  isActive={activeCategory === category.id}
+                  onHover={setActiveCategory}
+                />
+              ))}
+            </div>
 
-        {/* Category Stats Summary */}
-        {showStats && (
-          <div
-            className={cn(
-              "mt-8 md:mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 transition-all duration-700 delay-500",
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+            {/* Additional Categories - Small Cards */}
+            {categories.length > 3 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                {categories.slice(3, 9).map((category) => (
+                  <QuickAccessCard key={`quick-${category.id}`} category={category} />
+                ))}
+              </div>
             )}
-          >
-            <StatCard
-              icon={<TrendingUp className="w-5 h-5 md:w-6 md:h-6" />}
-              value="10,000+"
-              label="Products Available"
-              color="text-primary-blue"
-            />
-            <StatCard
-              icon={<Users className="w-5 h-5 md:w-6 md:h-6" />}
-              value="50,000+"
-              label="Happy Customers"
-              color="text-secondary-teal"
-            />
-            <StatCard
-              icon={<Star className="w-5 h-5 md:w-6 md:h-6" />}
-              value="4.8/5"
-              label="Average Rating"
-              color="text-yellow-500"
-            />
-            <StatCard
-              icon={<ChevronRight className="w-5 h-5 md:w-6 md:h-6" />}
-              value="24/7"
-              label="Expert Support"
-              color="text-green-500"
-            />
+          </>
+        )}
+
+        {/* View All Button */}
+        {showViewAll && categories.length > 0 && (
+          <div className="text-center mt-8">
+            <Link href="/products-prestashop">
+              <Button variant="outline" size="lg">
+                Ver Todos los Productos
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
           </div>
         )}
       </div>
@@ -185,166 +258,164 @@ export function FeaturedCategories({
 }
 
 interface CategoryCardProps {
-  category: CategoryData
-  index: number
-  layout: "grid" | "carousel" | "masonry"
+  category: FeaturedCategory
+  size: "small" | "medium" | "large"
   showStats: boolean
-  isVisible: boolean
-  isHovered: boolean
+  isActive: boolean
   onHover: (id: string | null) => void
 }
 
-function CategoryCard({ category, index, layout, showStats, isVisible, isHovered, onHover }: CategoryCardProps) {
-  const cardDelay = Math.min(index * 100, 600)
+function CategoryCard({ category, size, showStats, isActive, onHover }: CategoryCardProps) {
+  const isLarge = size === "large"
+  const isMedium = size === "medium"
+
+  const highlightColor = category.color?.primary || category.highlightColor || "#3b82f6"
 
   return (
-    <Link href={category.href} className={layout === "carousel" ? "flex-shrink-0 w-64 snap-start" : ""}>
+    <Link href={category.href}>
       <Card
-        className={cn(
-          "group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-500 cursor-pointer h-full",
-          layout === "masonry" && "break-inside-avoid mb-4 md:mb-6",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8",
-        )}
-        style={{
-          transitionDelay: `${cardDelay}ms`,
-          background: `linear-gradient(135deg, ${category.color.primary}15 0%, ${category.color.secondary}10 100%)`,
-        }}
+        className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-700 cursor-pointer h-full"
         onMouseEnter={() => onHover(category.id)}
         onMouseLeave={() => onHover(null)}
       >
         <CardContent className="p-0 relative">
-          {/* Background Pattern */}
+          {/* Background Image */}
           <div
-            className="absolute inset-0 opacity-5 transition-opacity duration-500 group-hover:opacity-10"
-            style={{
-              backgroundImage: `radial-gradient(circle at 20% 80%, ${category.color.accent} 0%, transparent 50%), radial-gradient(circle at 80% 20%, ${category.color.primary} 0%, transparent 50%)`,
-            }}
-          />
-
-          {/* Image Container */}
-          <div className="relative aspect-square overflow-hidden">
+            className={cn(
+              "relative overflow-hidden",
+              isLarge ? "aspect-[16/10]" : isMedium ? "aspect-[4/3]" : "aspect-square",
+            )}
+          >
             <img
-              src={category.image || "/placeholder.svg?height=300&width=300"}
+              src={category.backgroundImage || category.image || "/placeholder.svg?height=400&width=600"}
               alt={category.name}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               loading="lazy"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement
+                target.src = `/placeholder.svg?height=400&width=600&text=${encodeURIComponent(category.name)}`
+              }}
             />
 
-            {/* Overlay Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            {/* Overlay */}
+            <div
+              className="absolute inset-0 transition-opacity duration-500"
+              style={{
+                background: `linear-gradient(135deg, ${highlightColor}80 0%, ${highlightColor}40 50%, transparent 100%)`,
+              }}
+            />
 
-            {/* Badges */}
-            <div className="absolute top-3 left-3 flex flex-col gap-2">
-              {category.trending && (
-                <Badge variant="destructive" className="text-xs font-medium animate-pulse">
-                  🔥 Trending
-                </Badge>
-              )}
-              {category.popular && (
-                <Badge variant="secondary" className="text-xs font-medium">
-                  ⭐ Popular
-                </Badge>
-              )}
-              {category.featured && <Badge className="text-xs font-medium bg-primary-blue">✨ Featured</Badge>}
-            </div>
-
-            {/* Product Count */}
-            <div className="absolute top-3 right-3">
-              <Badge variant="outline" className="bg-white/90 backdrop-blur-sm text-xs font-medium">
-                {category.productCount}+ items
-              </Badge>
-            </div>
-
-            {/* Hover Overlay Content */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
-              <Button size="sm" className="bg-white text-primary-blue hover:bg-gray-100 font-medium shadow-lg">
-                Explore Category
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="p-4 md:p-6 space-y-3">
-            {/* Category Icon & Name */}
-            <div className="flex items-center gap-3">
-              {category.icon && (
-                <div
-                  className="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center transition-colors duration-300"
-                  style={{ backgroundColor: `${category.color.primary}20` }}
-                >
-                  <div style={{ color: category.color.primary }}>{category.icon}</div>
-                </div>
-              )}
-              <h3 className="font-semibold text-base md:text-lg font-montserrat text-charcoal group-hover:text-primary-blue transition-colors duration-300">
-                {category.name}
-              </h3>
-            </div>
-
-            {/* Description */}
-            <p className="text-gray-600 font-inter text-sm md:text-base leading-relaxed line-clamp-2">
-              {category.description}
-            </p>
-
-            {/* Stats */}
-            {showStats && category.stats && (
-              <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                <div className="flex items-center gap-4 text-xs md:text-sm text-gray-500">
-                  {category.stats.avgRating && (
-                    <div className="flex items-center gap-1">
-                      <Star className="w-3 h-3 md:w-4 md:h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="font-medium">{category.stats.avgRating}</span>
-                    </div>
-                  )}
-                  {category.stats.totalReviews && <span>({category.stats.totalReviews} reviews)</span>}
-                </div>
-                {category.stats.newProducts && (
-                  <Badge variant="outline" className="text-xs">
-                    {category.stats.newProducts} new
+            {/* Content Overlay */}
+            <div className="absolute inset-0 flex flex-col justify-end p-4 md:p-6">
+              {/* Badges */}
+              <div className="flex gap-2 mb-3 md:mb-4">
+                {category.trending && (
+                  <Badge className="bg-red-500 text-white text-xs animate-pulse">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    Trending
                   </Badge>
                 )}
+                {category.popular && (
+                  <Badge className="bg-green-500 text-white text-xs">
+                    <Sparkles className="w-3 h-3 mr-1" />
+                    Popular
+                  </Badge>
+                )}
+                {category.specialOffer && (
+                  <Badge className="bg-orange-500 text-white text-xs">{category.specialOffer.discount} OFF</Badge>
+                )}
+              </div>
+
+              {/* Category Info */}
+              <div className="space-y-2 md:space-y-3">
+                <div className="flex items-center gap-2">
+                  {category.icon && <div className="text-white">{category.icon}</div>}
+                  <h3
+                    className={cn(
+                      "font-bold font-montserrat transition-all duration-300 group-hover:translate-y-0 translate-y-2 text-white",
+                      isLarge
+                        ? "text-xl md:text-2xl lg:text-3xl"
+                        : isMedium
+                          ? "text-lg md:text-xl"
+                          : "text-base md:text-lg",
+                    )}
+                  >
+                    {category.name}
+                  </h3>
+                </div>
+
+                <p
+                  className={cn(
+                    "font-inter leading-relaxed transition-all duration-300 delay-100 group-hover:translate-y-0 translate-y-2 group-hover:opacity-100 opacity-80 text-white/90",
+                    isLarge ? "text-sm md:text-base" : "text-xs md:text-sm",
+                  )}
+                >
+                  {category.description}
+                </p>
+
+                {/* Product Count & Stats */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs md:text-sm font-medium text-white/80">
+                    {category.productCount}+ productos
+                  </span>
+
+                  {showStats && category.stats && (
+                    <div className="text-xs text-white/80">
+                      ⭐ {category.stats.avgRating.toFixed(1)} ({category.stats.totalReviews})
+                    </div>
+                  )}
+                </div>
+
+                {/* CTA Button */}
+                <Button
+                  size={isLarge ? "default" : "sm"}
+                  className="transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 bg-white text-primary-blue hover:bg-gray-100"
+                >
+                  Explorar
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Special Offer Banner */}
+            {category.specialOffer && (
+              <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold transform rotate-12 shadow-lg">
+                {category.specialOffer.text}
               </div>
             )}
-
-            {/* Action Indicator */}
-            <div className="flex items-center justify-between pt-2">
-              <span className="text-xs md:text-sm text-gray-500 font-inter">Shop {category.name.toLowerCase()}</span>
-              <ChevronRight
-                className={cn(
-                  "w-4 h-4 md:w-5 md:h-5 text-gray-400 transition-all duration-300",
-                  isHovered ? "text-primary-blue translate-x-1" : "",
-                )}
-              />
-            </div>
           </div>
-
-          {/* Animated Border */}
-          <div
-            className={cn("absolute bottom-0 left-0 h-1 transition-all duration-500", isHovered ? "w-full" : "w-0")}
-            style={{ backgroundColor: category.color.primary }}
-          />
         </CardContent>
       </Card>
     </Link>
   )
 }
 
-function StatCard({
-  icon,
-  value,
-  label,
-  color,
-}: {
-  icon: React.ReactNode
-  value: string
-  label: string
-  color: string
-}) {
+function QuickAccessCard({ category }: { category: FeaturedCategory }) {
   return (
-    <div className="text-center p-4 md:p-6 bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
-      <div className={cn("flex justify-center mb-2 md:mb-3", color)}>{icon}</div>
-      <div className="font-bold text-lg md:text-xl lg:text-2xl font-montserrat text-charcoal mb-1">{value}</div>
-      <div className="text-xs md:text-sm text-gray-600 font-inter">{label}</div>
-    </div>
+    <Link href={category.href}>
+      <Card className="group hover:shadow-md transition-all duration-300 cursor-pointer border border-gray-200 hover:border-primary-blue">
+        <CardContent className="p-3 md:p-4 text-center">
+          <div className="aspect-square mb-2 md:mb-3 overflow-hidden rounded-lg">
+            <img
+              src={category.image || "/placeholder.svg?height=100&width=100"}
+              alt={category.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement
+                target.src = `/placeholder.svg?height=100&width=100&text=${encodeURIComponent(category.name)}`
+              }}
+            />
+          </div>
+          <div className="flex items-center justify-center gap-1 mb-2">
+            {category.icon && <div className="text-primary-blue">{category.icon}</div>}
+          </div>
+          <h4 className="font-medium text-xs md:text-sm font-inter text-charcoal group-hover:text-primary-blue transition-colors line-clamp-2">
+            {category.name}
+          </h4>
+          <p className="text-xs text-gray-500 mt-1">{category.productCount}+ items</p>
+        </CardContent>
+      </Card>
+    </Link>
   )
 }
