@@ -14,6 +14,44 @@ export class PrestaShopError extends Error {
   }
 }
 
+// URL utilities for link_rewrite handling
+export const sanitizeLinkRewrite = (linkRewrite: string): string => {
+  if (!linkRewrite) return ""
+
+  return linkRewrite
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\-_]/g, "-") // Replace non-alphanumeric chars with hyphens
+      .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+      .replace(/^-|-$/g, "") // Remove leading/trailing hyphens
+}
+
+export const encodeLinkRewrite = (linkRewrite: string): string => {
+  return encodeURIComponent(sanitizeLinkRewrite(linkRewrite))
+}
+
+export const buildProductUrl = (id: string, linkRewrite?: string): string => {
+  if (linkRewrite) {
+    const sanitized = sanitizeLinkRewrite(linkRewrite)
+    return `/producto/${sanitized}-${id}`
+  }
+  return `/producto/${id}`
+}
+
+export const buildCategoryUrl = (id: string, linkRewrite?: string): string => {
+  if (linkRewrite) {
+    const sanitized = sanitizeLinkRewrite(linkRewrite)
+    return `/categoria/${sanitized}-${id}`
+  }
+  return `/categoria/${id}`
+}
+
+export const extractIdFromUrl = (url: string): string => {
+  // Extract ID from URLs like "/producto/ibuprofen-400mg-123" or "/categoria/medicamentos-456"
+  const match = url.match(/-(\d+)$/)
+  return match ? match[1] : url
+}
+
 // API Headers
 const getHeaders = (token?: string) => ({
   Authorization: `Basic ${btoa(`${API_KEY}:`)}`,
@@ -56,36 +94,19 @@ const apiRequest = async <T>(endpoint: string, queryParams = ''): Promise<T> => 
 };
 
 
-// const apiRequest = async <T>(
-//   endpoint: string,
-//   options: RequestInit = {},
-//   token?: string
-// )
-// : Promise<T> =>
-// {
-//   const url = `${PRESTASHOP_BASE_URL}/api/${endpoint}`
-//
-//   const response = await fetch(url, {
-//     ...options,
-//     headers: {
-//       ...getHeaders(token),
-//       ...options.headers,
-//     },
-//   })
-//
-//   if (!response.ok) {
-//     const errorText = await response.text()
-//     throw new PrestaShopError(`API Error: ${response.statusText}`, response.status, errorText)
-//   }
-//
-//   const data = await response.json()
-//   return data
-// }
-
-
-
 // Transform PrestaShop product to our format
 const transformProduct = (psProduct: any): any => {
+
+  const linkRewrite = psProduct.link_rewrite || psProduct.name?.toLowerCase().replace(/\s+/g, "-") || ""
+  const imageUrls = psProduct.associations?.images?.map((img: { id: number }) =>
+      `${PRESTASHOP_BASE_URL}/api/images/products/${psProduct.id}/${img.id}`
+  ) || [];
+  const image =
+      psProduct.cover?.large?.url ||
+      imageUrls?.[0] ||
+      "/placeholder.svg?height=300&width=300&text=Product";
+
+
   return {
     id: psProduct.id?.toString() || "",
     name: psProduct.name || "",
@@ -94,12 +115,11 @@ const transformProduct = (psProduct: any): any => {
     originalPrice: psProduct.price_without_reduction ? Number.parseFloat(psProduct.price_without_reduction) : undefined,
     category: psProduct.id_category_default?.toString() || "",
     brand: psProduct.manufacturer_name || "",
-    image:
-      psProduct.cover?.large?.url ||
-      psProduct.images?.[0]?.large?.url ||
-      "/placeholder.svg?height=300&width=300&text=Product",
-    images: psProduct.images?.map((img: any) => img.large?.url || img.url) || [],
-    href: `/product/${psProduct.id}`,
+    image: image,
+    images: imageUrls?.map((img: any) => img.large?.url || img.url) || [],
+    href: buildProductUrl(psProduct.id?.toString() || "", linkRewrite),
+    linkRewrite: linkRewrite,
+    slug: sanitizeLinkRewrite(linkRewrite),
     inStock: psProduct.quantity > 0,
     stockQuantity: Number.parseInt(psProduct.quantity || "0"),
     rating: Number.parseFloat(psProduct.rating || "4.5"),
@@ -114,11 +134,16 @@ const transformProduct = (psProduct: any): any => {
 
 // Transform PrestaShop category to our format
 const transformCategory = (psCategory: any): any => {
+  const linkRewrite = psCategory.link_rewrite || psCategory.name?.toLowerCase().replace(/\s+/g, "-") || ""
+
+
   return {
     id: psCategory.id?.toString() || "",
     name: psCategory.name || "",
     description: psCategory.description || "",
-    href: `/categories/${psCategory.id}`,
+    href: buildCategoryUrl(psCategory.id?.toString() || "", linkRewrite),
+    linkRewrite: linkRewrite,
+    slug: sanitizeLinkRewrite(linkRewrite),
     image: psCategory.image || "/placeholder.svg?height=300&width=300&text=Category",
     productCount: Number.parseInt(psCategory.nb_products_recursive || "0"),
     parentId: psCategory.id_parent?.toString(),
@@ -182,9 +207,31 @@ export const productsAPI = {
   getProduct: async (id: string) => {
     return retryRequest(async () => {
       const data = await apiRequest<any>(`products/${id}?output_format=JSON&display=full`)
-      return transformProduct(data.product)
+      return transformProduct(data.products[0])
     })
   },
+
+  // Get product by slug (link_rewrite)
+  getProductBySlug: async (slug: string) => {
+    return retryRequest(async () => {
+      // First try to extract ID from slug
+      const id = extractIdFromUrl(`/${slug}`)
+      if (id && id !== slug) {
+        return await productsAPI.getProduct(id)
+      }
+
+      // If no ID found, search by link_rewrite
+      const data = await apiRequest<any>(`products?output_format=JSON&display=full&filter[link_rewrite]=${slug}`)
+      const products = Array.isArray(data.products) ? data.products : [data.products].filter(Boolean)
+
+      if (products.length > 0) {
+        return transformProduct(products[0])
+      }
+
+      throw new PrestaShopError("Product not found", 404)
+    })
+  },
+
 
   // Get featured products
   getFeaturedProducts: async (limit = 8) => {
@@ -230,6 +277,27 @@ export const categoriesAPI = {
     return retryRequest(async () => {
       const data = await apiRequest<any>(`categories/${id}?output_format=JSON&display=full`)
       return transformCategory(data.category)
+    })
+  },
+
+  // Get category by slug (link_rewrite)
+  getCategoryBySlug: async (slug: string) => {
+    return retryRequest(async () => {
+      // First try to extract ID from slug
+      const id = extractIdFromUrl(`/${slug}`)
+      if (id && id !== slug) {
+        return await categoriesAPI.getCategory(id)
+      }
+
+      // If no ID found, search by link_rewrite
+      const data = await apiRequest<any>(`categories?output_format=JSON&display=full&filter[link_rewrite]=${slug}`)
+      const categories = Array.isArray(data.categories) ? data.categories : [data.categories].filter(Boolean)
+
+      if (categories.length > 0) {
+        return transformCategory(categories[0])
+      }
+
+      throw new PrestaShopError("Category not found", 404)
     })
   },
 

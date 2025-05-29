@@ -227,24 +227,28 @@ export default function HomePage() {
   return (
     <PrestashopDataProvider>
       <div className="min-h-screen bg-white">
+        {/*Texto superior*/}
+        <div className="bg-primary-blue text-white text-sm text-center py-1">
+          -11% Extra mínimo 75€. Cupón: 11EXTRA
+        </div>
+
         <Header />
 
         <main>
           {/* Refresh Button for Admin */}
-          <div className="container mx-auto px-4 pt-4">
-            <Button onClick={handleRefreshData} variant="outline" size="sm" className="mb-4">
-              Actualizar Datos desde PrestaShop
-            </Button>
-          </div>
+          {/*<div className="container mx-auto px-4 pt-4">*/}
+          {/*  <Button onClick={handleRefreshData} variant="outline" size="sm" className="mb-4">*/}
+          {/*    Actualizar Datos desde PrestaShop*/}
+          {/*  </Button>*/}
+          {/*</div>*/}
 
-          {/* Main Banner */}
-          <MainBanner
-            slides={bannerSlides}
-            autoPlay={true}
-            autoPlayInterval={5000}
-            showNavigation={true}
-            showDots={true}
-          />
+          {/*<MainBanner*/}
+          {/*  slides={bannerSlides}*/}
+          {/*  autoPlay={true}*/}
+          {/*  autoPlayInterval={5000}*/}
+          {/*  showNavigation={true}*/}
+          {/*  showDots={true}*/}
+          {/*/>*/}
 
           <PromotionalBannerSection />
 
@@ -283,102 +287,102 @@ export default function HomePage() {
           </section>
 
           {/* Featured Products Section */}
-          <PrestashopErrorBoundary>
-            <section className="py-16 bg-white">
-              <div className="container mx-auto px-4">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-3xl font-bold">Productos Destacados</h2>
-                  <Link href="/products-prestashop">
-                    <Button variant="outline">
-                      Ver Todos <ChevronRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </Link>
-                </div>
+          {/*<PrestashopErrorBoundary>*/}
+          {/*  <section className="py-16 bg-white">*/}
+          {/*    <div className="container mx-auto px-4">*/}
+          {/*      <div className="flex items-center justify-between mb-8">*/}
+          {/*        <h2 className="text-3xl font-bold">Productos Destacados</h2>*/}
+          {/*        <Link href="/products-prestashop">*/}
+          {/*          <Button variant="outline">*/}
+          {/*            Ver Todos <ChevronRight className="w-4 h-4 ml-1" />*/}
+          {/*          </Button>*/}
+          {/*        </Link>*/}
+          {/*      </div>*/}
 
-                {featuredError && (
-                  <ErrorDisplay error={featuredError} onRetry={refreshFeatured} title="productos destacados" />
-                )}
+          {/*      {featuredError && (*/}
+          {/*        <ErrorDisplay error={featuredError} onRetry={refreshFeatured} title="productos destacados" />*/}
+          {/*      )}*/}
 
-                {featuredLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <LoadingSpinner size="lg" />
-                    <span className="ml-3 text-lg">Cargando productos destacados...</span>
-                  </div>
-                ) : featuredProducts.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {featuredProducts.slice(0, 4).map((product) => (
-                      <Card key={product.id} className="hover:shadow-lg transition-shadow">
-                        <CardContent className="p-4">
-                          <Link href={`/product-prestashop/${product.id}`}>
-                            <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center cursor-pointer overflow-hidden">
-                              <img
-                                src={product.image || "/placeholder.svg?height=300&width=300&text=Producto"}
-                                alt={product.name}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement
-                                  target.src = "/placeholder.svg?height=300&width=300&text=Producto"
-                                }}
-                              />
-                            </div>
-                          </Link>
-                          <div className="flex items-center gap-1 mb-2">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Star
-                                key={star}
-                                className={`w-4 h-4 ${
-                                  star <= product.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                                }`}
-                              />
-                            ))}
-                            <span className="text-sm text-gray-600 ml-1">({product.reviewCount})</span>
-                          </div>
-                          <Link href={`/product-prestashop/${product.id}`}>
-                            <h3 className="font-semibold mb-2 hover:text-blue-600 cursor-pointer line-clamp-2">
-                              {product.name}
-                            </h3>
-                          </Link>
-                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <span className="text-lg font-bold text-blue-600">${product.price.toFixed(2)}</span>
-                              {product.originalPrice && product.originalPrice > product.price && (
-                                <span className="text-sm text-gray-500 line-through ml-2">
-                                  ${product.originalPrice.toFixed(2)}
-                                </span>
-                              )}
-                            </div>
-                            {product.inStock ? (
-                              <span className="text-xs text-green-600 font-medium">En Stock</span>
-                            ) : (
-                              <span className="text-xs text-red-600 font-medium">Agotado</span>
-                            )}
-                          </div>
-                          <Button
-                            size="sm"
-                            className="w-full"
-                            onClick={() => handleAddToCart(product)}
-                            disabled={!product.inStock}
-                          >
-                            {product.inStock ? "Añadir al Carrito" : "Agotado"}
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Package className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                    <h3 className="text-lg font-semibold text-gray-600 mb-2">No hay productos destacados</h3>
-                    <p className="text-gray-500 mb-4">Los productos se cargarán desde PrestaShop</p>
-                    <Button onClick={refreshFeatured} variant="outline">
-                      Recargar Productos
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </section>
-          </PrestashopErrorBoundary>
+          {/*      {featuredLoading ? (*/}
+          {/*        <div className="flex items-center justify-center py-12">*/}
+          {/*          <LoadingSpinner size="lg" />*/}
+          {/*          <span className="ml-3 text-lg">Cargando productos destacados...</span>*/}
+          {/*        </div>*/}
+          {/*      ) : featuredProducts.length > 0 ? (*/}
+          {/*        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">*/}
+          {/*          {featuredProducts.slice(0, 4).map((product) => (*/}
+          {/*            <Card key={product.id} className="hover:shadow-lg transition-shadow">*/}
+          {/*              <CardContent className="p-4">*/}
+          {/*                <Link href={`/product-prestashop/${product.id}`}>*/}
+          {/*                  <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center cursor-pointer overflow-hidden">*/}
+          {/*                    <img*/}
+          {/*                      src={product.image || "/placeholder.svg?height=300&width=300&text=Producto"}*/}
+          {/*                      alt={product.name}*/}
+          {/*                      className="w-full h-full object-cover hover:scale-105 transition-transform"*/}
+          {/*                      onError={(e) => {*/}
+          {/*                        const target = e.target as HTMLImageElement*/}
+          {/*                        target.src = "/placeholder.svg?height=300&width=300&text=Producto"*/}
+          {/*                      }}*/}
+          {/*                    />*/}
+          {/*                  </div>*/}
+          {/*                </Link>*/}
+          {/*                <div className="flex items-center gap-1 mb-2">*/}
+          {/*                  {[1, 2, 3, 4, 5].map((star) => (*/}
+          {/*                    <Star*/}
+          {/*                      key={star}*/}
+          {/*                      className={`w-4 h-4 ${*/}
+          {/*                        star <= product.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"*/}
+          {/*                      }`}*/}
+          {/*                    />*/}
+          {/*                  ))}*/}
+          {/*                  <span className="text-sm text-gray-600 ml-1">({product.reviewCount})</span>*/}
+          {/*                </div>*/}
+          {/*                <Link href={`/product-prestashop/${product.id}`}>*/}
+          {/*                  <h3 className="font-semibold mb-2 hover:text-blue-600 cursor-pointer line-clamp-2">*/}
+          {/*                    {product.name}*/}
+          {/*                  </h3>*/}
+          {/*                </Link>*/}
+          {/*                <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>*/}
+          {/*                <div className="flex items-center justify-between mb-3">*/}
+          {/*                  <div>*/}
+          {/*                    <span className="text-lg font-bold text-blue-600">${product.price.toFixed(2)}</span>*/}
+          {/*                    {product.originalPrice && product.originalPrice > product.price && (*/}
+          {/*                      <span className="text-sm text-gray-500 line-through ml-2">*/}
+          {/*                        ${product.originalPrice.toFixed(2)}*/}
+          {/*                      </span>*/}
+          {/*                    )}*/}
+          {/*                  </div>*/}
+          {/*                  {product.inStock ? (*/}
+          {/*                    <span className="text-xs text-green-600 font-medium">En Stock</span>*/}
+          {/*                  ) : (*/}
+          {/*                    <span className="text-xs text-red-600 font-medium">Agotado</span>*/}
+          {/*                  )}*/}
+          {/*                </div>*/}
+          {/*                <Button*/}
+          {/*                  size="sm"*/}
+          {/*                  className="w-full"*/}
+          {/*                  onClick={() => handleAddToCart(product)}*/}
+          {/*                  disabled={!product.inStock}*/}
+          {/*                >*/}
+          {/*                  {product.inStock ? "Añadir al Carrito" : "Agotado"}*/}
+          {/*                </Button>*/}
+          {/*              </CardContent>*/}
+          {/*            </Card>*/}
+          {/*          ))}*/}
+          {/*        </div>*/}
+          {/*      ) : (*/}
+          {/*        <div className="text-center py-12">*/}
+          {/*          <Package className="w-16 h-16 mx-auto mb-4 text-gray-400" />*/}
+          {/*          <h3 className="text-lg font-semibold text-gray-600 mb-2">No hay productos destacados</h3>*/}
+          {/*          <p className="text-gray-500 mb-4">Los productos se cargarán desde PrestaShop</p>*/}
+          {/*          <Button onClick={refreshFeatured} variant="outline">*/}
+          {/*            Recargar Productos*/}
+          {/*          </Button>*/}
+          {/*        </div>*/}
+          {/*      )}*/}
+          {/*    </div>*/}
+          {/*  </section>*/}
+          {/*</PrestashopErrorBoundary>*/}
 
           {/* Product Carousels with Real Data */}
           {allProducts.length > 0 && (

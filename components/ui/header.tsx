@@ -33,29 +33,29 @@ export function Header({ cartItemCount = 0, wishlistCount = 0, isLoggedIn = fals
     <header className="bg-white border-b sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto">
         {/* Top Bar - Hidden on mobile */}
-        <div className="hidden lg:flex items-center justify-between py-2 text-xs xl:text-sm text-dark-gray border-b px-4">
-          <div className="flex items-center gap-4 xl:gap-6">
-            <span className="flex items-center gap-2">
-              <Truck className="w-3 h-3 xl:w-4 xl:h-4 text-success" />
-              <span className="hidden xl:inline">Free shipping over $50</span>
-              <span className="xl:hidden">Free shipping $50+</span>
-            </span>
-            <span className="flex items-center gap-2">
-              <Shield className="w-3 h-3 xl:w-4 xl:h-4 text-primary-blue" />
-              <span className="hidden xl:inline">Licensed pharmacy</span>
-              <span className="xl:hidden">Licensed</span>
-            </span>
-          </div>
-          <div className="flex items-center gap-4 xl:gap-6">
-            <Link href="/account" className="hover:text-primary-blue transition-colors">
-              My Account
-            </Link>
-            <Link href="/help" className="hover:text-primary-blue transition-colors">
-              <span className="hidden xl:inline">Help & Support</span>
-              <span className="xl:hidden">Help</span>
-            </Link>
-          </div>
-        </div>
+        {/*<div className="hidden lg:flex items-center justify-between py-2 text-xs xl:text-sm text-dark-gray border-b px-4">*/}
+        {/*  <div className="flex items-center gap-4 xl:gap-6">*/}
+        {/*    <span className="flex items-center gap-2">*/}
+        {/*      <Truck className="w-3 h-3 xl:w-4 xl:h-4 text-success" />*/}
+        {/*      <span className="hidden xl:inline">Free shipping over $50</span>*/}
+        {/*      <span className="xl:hidden">Free shipping $50+</span>*/}
+        {/*    </span>*/}
+        {/*    <span className="flex items-center gap-2">*/}
+        {/*      <Shield className="w-3 h-3 xl:w-4 xl:h-4 text-primary-blue" />*/}
+        {/*      <span className="hidden xl:inline">Licensed pharmacy</span>*/}
+        {/*      <span className="xl:hidden">Licensed</span>*/}
+        {/*    </span>*/}
+        {/*  </div>*/}
+        {/*  <div className="flex items-center gap-4 xl:gap-6">*/}
+        {/*    <Link href="/account" className="hover:text-primary-blue transition-colors">*/}
+        {/*      My Account*/}
+        {/*    </Link>*/}
+        {/*    <Link href="/help" className="hover:text-primary-blue transition-colors">*/}
+        {/*      <span className="hidden xl:inline">Help & Support</span>*/}
+        {/*      <span className="xl:hidden">Help</span>*/}
+        {/*    </Link>*/}
+        {/*  </div>*/}
+        {/*</div>*/}
 
         {/* Main Header */}
         <div className="flex items-center justify-between py-3 md:py-4 px-4">
@@ -98,8 +98,8 @@ export function Header({ cartItemCount = 0, wishlistCount = 0, isLoggedIn = fals
 
           {/* Logo */}
           <Link href="/" className="text-lg sm:text-xl md:text-2xl font-montserrat font-bold text-primary-blue">
-            <span className="hidden sm:inline">PharmaCare+</span>
-            <span className="sm:hidden">PC+</span>
+            <span className="hidden sm:inline">PharmaYes</span>
+            <span className="sm:hidden">PY</span>
           </Link>
 
           {/* Search Bar - Desktop */}

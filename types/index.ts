@@ -9,6 +9,9 @@ export interface Product {
   brand: string
   image: string
   images: string[]
+  href: string
+  linkRewrite: string
+  slug: string
   inStock: boolean
   stockQuantity: number
   rating: number
@@ -18,6 +21,21 @@ export interface Product {
   specifications: Record<string, string>
   createdAt: Date
   updatedAt: Date
+}
+
+export interface Category {
+  id: string
+  name: string
+  description: string
+  href: string
+  linkRewrite: string
+  slug: string
+  image: string
+  productCount: number
+  parentId?: string
+  level: number
+  active: boolean
+  children?: Category[]
 }
 
 export interface CartItem {
