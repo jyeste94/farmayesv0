@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useState } from "react"
 import { Search, ShoppingCart, User, Heart, Menu, Truck, Shield, X } from "lucide-react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -97,10 +98,18 @@ export function Header({ cartItemCount = 0, wishlistCount = 0, isLoggedIn = fals
           </Sheet>
 
           {/* Logo */}
-          <Link href="/" className="text-lg sm:text-xl md:text-2xl font-montserrat font-bold text-primary-blue">
-            <span className="hidden sm:inline">PharmaYes</span>
-            <span className="sm:hidden">PY</span>
+          <Link href="/" className="flex items-center">
+            <Image
+                src="/images/pharmayes_logo.png"
+                alt="PharmaYes Logo"
+                width={0}
+                height={0}
+                sizes="(max-width: 768px) 100px, 180px"
+                className="h-8 sm:h-8 md:h-8 w-auto"
+                priority
+            />
           </Link>
+
 
           {/* Search Bar - Desktop */}
           <div className="hidden lg:flex flex-1 max-w-xl xl:max-w-2xl mx-6 xl:mx-8">
