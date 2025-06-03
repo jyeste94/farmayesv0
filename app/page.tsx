@@ -57,6 +57,7 @@ const bannerSlides = [
     },
     overlay: true,
   },
+  
   {
     id: "2",
     title: "Hasta 50% de Descuento",
