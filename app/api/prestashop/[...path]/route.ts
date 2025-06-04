@@ -51,25 +51,34 @@ async function handleRequest(
 // Métodos HTTP soportados
 export async function GET(
     req: NextRequest,
-    context: { params: { path: string[] } }
+    { params }: { params: { path: string[] } },
 ) {
-    const pathSegments = context.params.path;
+    const pathSegments = params.path;
     return await handleRequest(req, 'GET', pathSegments);
 }
 
-export async function POST(req: NextRequest, context: { params: { path: string[] } }) {
+export async function POST(
+    req: NextRequest,
+    { params }: { params: { path: string[] } },
+) {
     const body = await req.text();
-    const pathSegments = context.params.path;
+    const pathSegments = params.path;
     return await handleRequest(req, 'POST', pathSegments, body);
 }
 
-export async function PUT(req: NextRequest, context: { params: { path: string[] } }) {
+export async function PUT(
+    req: NextRequest,
+    { params }: { params: { path: string[] } },
+) {
     const body = await req.text();
-    const pathSegments = context.params.path;
+    const pathSegments = params.path;
     return await handleRequest(req, 'PUT', pathSegments, body);
 }
 
-export async function DELETE(req: NextRequest, context: { params: { path: string[] } }) {
-    const pathSegments = context.params.path;
+export async function DELETE(
+    req: NextRequest,
+    { params }: { params: { path: string[] } },
+) {
+    const pathSegments = params.path;
     return await handleRequest(req, 'DELETE', pathSegments);
 }

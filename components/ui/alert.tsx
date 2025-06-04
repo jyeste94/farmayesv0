@@ -30,7 +30,10 @@ interface AlertProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<
 }
 
 const Alert = forwardRef<HTMLDivElement, AlertProps>(
-  ({ className, variant, title, dismissible = false, onDismiss, children, ...props }, ref) => {
+  (
+    { className, variant, title, dismissible = false, onDismiss, children, ...props },
+    ref,
+  ) => {
     const icons = {
       default: Info,
       destructive: AlertCircle,
@@ -61,4 +64,20 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(
 )
 Alert.displayName = "Alert"
 
-export { Alert, alertVariants }
+const AlertTitle = forwardRef<
+  HTMLHeadingElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+  <h5 ref={ref} className={cn("font-medium mb-1", className)} {...props} />
+))
+AlertTitle.displayName = "AlertTitle"
+
+const AlertDescription = forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <p ref={ref} className={cn("text-sm", className)} {...props} />
+))
+AlertDescription.displayName = "AlertDescription"
+
+export { Alert, alertVariants, AlertTitle, AlertDescription }
