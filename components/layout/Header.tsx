@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useAuth } from "@/hooks/useAuth"
+import { usePrestashopAuth } from "@/hooks/usePrestashopAuth"
 import { useCart } from "@/hooks/useCart"
 import { AuthModal } from "@/components/auth/AuthModal"
 import { CartDrawer } from "@/components/cart/CartDrawer"
@@ -21,7 +21,7 @@ import { CartDrawer } from "@/components/cart/CartDrawer"
 export function Header() {
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authModalTab, setAuthModalTab] = useState<"login" | "register">("login")
-  const { state: authState, logout } = useAuth()
+  const { state: authState, logout } = usePrestashopAuth()
   const { state: cartState, toggleCart } = useCart()
 
   const handleAuthClick = (tab: "login" | "register") => {
