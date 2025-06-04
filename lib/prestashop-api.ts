@@ -81,17 +81,27 @@ const retryRequest = async <T>(
 }
 
 // Base API request function
-const apiRequest = async <T>(endpoint: string, queryParams = ''): Promise<T> => {
-  const url = `/api/prestashop/${endpoint}${queryParams}`;
-  const response = await fetch(url);
+const apiRequest = async <T>(
+  endpoint: string,
+  options: RequestInit = {},
+  token?: string,
+): Promise<T> => {
+  const url = `/api/prestashop/${endpoint}`
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...getHeaders(token),
+      ...(options.headers || {}),
+    },
+  })
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`API Error: ${response.statusText}\n${errorText}`);
+    const errorText = await response.text()
+    throw new PrestaShopError(`API Error: ${response.statusText}\n${errorText}`, response.status)
   }
 
-  return await response.json();
-};
+  return (await response.json()) as T
+}
 
 
 // Transform PrestaShop product to our format
