@@ -24,7 +24,7 @@ export function SEOContentSection() {
           {/* Introduction */}
           <div className="mb-10 md:mb-12">
             <p className="text-gray-700 font-inter text-base md:text-lg leading-relaxed mb-6">
-              AtidaFarmia se ha consolidado como el referente en farmacia y parafarmacia online de confianza en España.
+              Atida Mifarma se ha consolidado como el referente en farmacia y parafarmacia online de confianza en España.
               Mantenemos la cercanía y confianza de la farmacia tradicional, pero con la ventaja de estar disponibles
               las 24 horas, los 365 días del año.
             </p>
