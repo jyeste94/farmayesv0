@@ -1,3 +1,5 @@
+"use client"
+
 import { ArrowLeft, Star, Heart, Plus, Minus, Truck, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
