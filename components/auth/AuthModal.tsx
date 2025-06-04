@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,6 +24,8 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
   const [isLoading, setIsLoading] = useState(false)
   const { login, register } = useAuth()
   const { toast } = useToast()
+
+  const router = useRouter()
 
   const [loginForm, setLoginForm] = useState({
     email: "",
@@ -48,6 +51,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalPr
         description: "You have been successfully logged in.",
       })
       onClose()
+      router.push("/account")
     } catch (error) {
       toast({
         title: "Login failed",
