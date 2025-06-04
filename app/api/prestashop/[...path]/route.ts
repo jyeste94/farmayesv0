@@ -9,10 +9,10 @@ const API_KEY = 'CKER67RSTRD6FF1DS25I6NR2KH17I135';
 async function handleRequest(
     req: NextRequest,
     method: string,
-    path: string[],
+    pathSegments: string[],
     body?: string
 ) {
-    const endpoint = path.join('/');
+    const endpoint = pathSegments.join('/');
 
     // Obtener los parámetros de la query y añadirlos a la URL de destino
     const searchParams = req.nextUrl.search;
@@ -49,20 +49,27 @@ async function handleRequest(
 }
 
 // Métodos HTTP soportados
-export async function GET(req: NextRequest, context: { params: { path: string[] } }) {
-    return await handleRequest(req, 'GET', context.params.path);
+export async function GET(
+    req: NextRequest,
+    context: { params: { path: string[] } }
+) {
+    const pathSegments = context.params.path;
+    return await handleRequest(req, 'GET', pathSegments);
 }
 
 export async function POST(req: NextRequest, context: { params: { path: string[] } }) {
     const body = await req.text();
-    return await handleRequest(req, 'POST', context.params.path, body);
+    const pathSegments = context.params.path;
+    return await handleRequest(req, 'POST', pathSegments, body);
 }
 
 export async function PUT(req: NextRequest, context: { params: { path: string[] } }) {
     const body = await req.text();
-    return await handleRequest(req, 'PUT', context.params.path, body);
+    const pathSegments = context.params.path;
+    return await handleRequest(req, 'PUT', pathSegments, body);
 }
 
 export async function DELETE(req: NextRequest, context: { params: { path: string[] } }) {
-    return await handleRequest(req, 'DELETE', context.params.path);
+    const pathSegments = context.params.path;
+    return await handleRequest(req, 'DELETE', pathSegments);
 }
