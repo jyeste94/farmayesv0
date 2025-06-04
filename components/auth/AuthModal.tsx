@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useAuth } from "@/hooks/useAuth"
+import { usePrestashopAuth } from "@/hooks/usePrestashopAuth"
 import { useToast } from "@/hooks/use-toast"
 
 interface AuthModalProps {
@@ -21,7 +21,7 @@ interface AuthModalProps {
 export function AuthModal({ isOpen, onClose, defaultTab = "login" }: AuthModalProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const { login, register } = useAuth()
+  const { login, register } = usePrestashopAuth()
   const { toast } = useToast()
 
   const [loginForm, setLoginForm] = useState({

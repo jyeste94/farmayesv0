@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { Search, ShoppingCart, User, Heart, Truck, Shield, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -13,21 +12,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useAuth } from "@/hooks/useAuth"
+import { usePrestashopAuth } from "@/hooks/usePrestashopAuth"
 import { useCart } from "@/hooks/useCart"
-import { AuthModal } from "@/components/auth/AuthModal"
 import { CartDrawer } from "@/components/cart/CartDrawer"
 
 export function Header() {
-  const [authModalOpen, setAuthModalOpen] = useState(false)
-  const [authModalTab, setAuthModalTab] = useState<"login" | "register">("login")
-  const { state: authState, logout } = useAuth()
+  const { state: authState, logout } = usePrestashopAuth()
   const { state: cartState, toggleCart } = useCart()
-
-  const handleAuthClick = (tab: "login" | "register") => {
-    setAuthModalTab(tab)
-    setAuthModalOpen(true)
-  }
 
   const handleLogout = async () => {
     try {
@@ -59,9 +50,9 @@ export function Header() {
                   My Account
                 </Link>
               ) : (
-                <button onClick={() => handleAuthClick("login")} className="hover:text-blue-600">
+                <Link href="/login" className="hover:text-blue-600">
                   Sign In
-                </button>
+                </Link>
               )}
               <Link href="/help" className="hover:text-blue-600">
                 Help
@@ -121,9 +112,11 @@ export function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button variant="ghost" size="icon" onClick={() => handleAuthClick("login")}>
-                  <User className="w-5 h-5" />
-                </Button>
+                <Link href="/login">
+                  <Button variant="ghost" size="icon">
+                    <User className="w-5 h-5" />
+                  </Button>
+                </Link>
               )}
 
               <Button variant="ghost" size="icon">
@@ -167,7 +160,6 @@ export function Header() {
         </div>
       </header>
 
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} defaultTab={authModalTab} />
       <CartDrawer />
     </>
   )

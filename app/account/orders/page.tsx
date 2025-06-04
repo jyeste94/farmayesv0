@@ -5,14 +5,14 @@ import { Package, Truck, CheckCircle, Clock, ArrowLeft } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { useAuth } from "@/hooks/useAuth"
+import { usePrestashopAuth } from "@/hooks/usePrestashopAuth"
 import { api } from "@/lib/api"
 import type { Order } from "@/types"
 import Link from "next/link"
 import { Header } from "@/components/layout/Header"
 
 export default function OrdersPage() {
-  const { state: authState } = useAuth()
+  const { state: authState } = usePrestashopAuth()
   const [orders, setOrders] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
