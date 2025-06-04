@@ -8,17 +8,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import { Breadcrumb } from "@/components/ui/breadcrumb"
 import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/ui/footer"
-import { usePrestashopProduct } from "@/hooks/usePrestashopProducts"
+import { usePrestashopProduct } from "@/hooks/usePrestashopProduct"
 import { usePrestashopCart } from "@/hooks/usePrestashopCart"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
@@ -105,21 +98,14 @@ export default function PrestashopProductPage() {
 
       <main className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <Breadcrumb className="mb-6">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/">Inicio</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/products-prestashop">Productos</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{product.name}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <Breadcrumb
+          items={[
+            { label: "Inicio", href: "/" },
+            { label: "Productos", href: "/products-prestashop" },
+            { label: product.name },
+          ]}
+          className="mb-6"
+        />
 
         {/* Back Button */}
         <Link href="/products-prestashop">
