@@ -1,5 +1,9 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+**Requires Node.js 20.x**. The build may fail on newer Node versions due to a
+known hashing issue in Webpack. Use `nvm use` or install Node 20 locally before
+running `pnpm run build`.
+
 ## Getting Started
 
 First, run the development server:

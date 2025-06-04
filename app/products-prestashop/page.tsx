@@ -5,14 +5,7 @@ import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/ui/footer"
 import { PrestashopProductGrid } from "@/components/prestashop/PrestashopProductGrid"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+import { Breadcrumb } from "@/components/ui/breadcrumb"
 
 export default function PrestashopProductsPage() {
   return (
@@ -21,17 +14,13 @@ export default function PrestashopProductsPage() {
 
       <main className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <Breadcrumb className="mb-6">
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/">Inicio</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Productos PrestaShop</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <Breadcrumb
+          items={[
+            { label: "Inicio", href: "/" },
+            { label: "Productos PrestaShop" },
+          ]}
+          className="mb-6"
+        />
 
         {/* Page Header */}
         <div className="mb-8">
